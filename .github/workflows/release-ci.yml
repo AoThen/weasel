@@ -58,13 +58,13 @@ jobs:
         run: |
           .\build.bat data
 
-      - name: Build Weasel Release
-        id: build_weasel
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          RELEASE_BUILD: 1
-        run: |
-          .\build.bat arm64 installer
+      # - name: Build Weasel Release
+      #   id: build_weasel
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   env:
+      #     RELEASE_BUILD: 1
+      #   run: |
+      #     .\build.bat arm64 installer
 
       - name: Build Weasel Nightly
         id: build_weasel_nightly
@@ -77,15 +77,14 @@ jobs:
         run: |
           output\7z.exe a -t7z "./output/archives/debug_symbols.7z" "output/*.pdb" -r
 
-      - name: Extract changelog
-        shell: pwsh
-        run: |
-          .\extract_changelog.ps1
-        if: startsWith(github.ref, 'refs/tags/')
+      # - name: Extract changelog
+      #   shell: pwsh
+      #   run: |
+      #     .\extract_changelog.ps1
+      #   if: startsWith(github.ref, 'refs/tags/')
 
       # create nightly release
       # - name: Create Nightly release
-      #   if: ${{ github.repository == 'rime/weasel' && github.ref == 'refs/heads/master' }}
       #   uses: 'marvinpinto/action-automatic-releases@latest'
       #   with:
       #     repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -96,14 +95,17 @@ jobs:
       #       ./output/archives/weasel*.exe
       #       ./output/archives/debug_symbols.7z
         
-      # if: ${{ github.repository == 'rime/weasel' && startsWith(github.ref, 'refs/tags/') }}
-
       # create stable release
-      - name: Release
-        uses: softprops/action-gh-release@v2
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: |
+      #       ./output/archives/weasel*.exe
+      #       ./output/archives/debug_symbols.7z
+      #     body_path: ${{ github.workspace }}/RELEASE_CHANGELOG.md
+      
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@main
         with:
-          files: |
-            ./output/archives/weasel*.exe
-            ./output/archives/debug_symbols.7z
-          body_path: ${{ github.workspace }}/RELEASE_CHANGELOG.md
-        
+          name: weasel
+          path: ./output/archives/weasel*.exe
